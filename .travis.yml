@@ -1,0 +1,64 @@
+# Project language
+language: php
+
+#before_install:
+#    # configure timezone: https://stackoverflow.com/a/27052708/1348344
+#    - date
+#    - export TZ=Europe/Prague
+#    - date
+
+# Versions of PHP I want my project run with.
+php:
+    - '7.1'
+    - '7.2'
+    - '7.3'
+
+env:
+    - ECS_LEVEL=php71
+
+matrix:
+    include:
+        -   php: 7.2
+            env: STATIC_ANALYSIS=true COVERAGE=true
+
+        # Cache composer packages so "composer install" is faster
+cache:
+    directories:
+        - $HOME/.composer/cache/files
+
+before_script:
+    # disable xdebug if not coverage
+    - if [[ $COVERAGE == "" ]]; then phpenv config-rm xdebug.ini; fi
+
+# Install composer dependencies,
+install:
+    - composer install
+# Commands to be run before my environment runs.
+#before_script:
+#    - composer install --prefer-source --no-interaction --dev
+
+# Run script
+script:
+    - composer ci
+    - composer unit_tests
+    - |
+        if [[ $COVERAGE == true ]]; then
+          php lib/CoverageChecker.php clover.xml 60
+        fi
+    - |
+        if [[ $STATIC_ANALYSIS == true ]]; then
+          if [[ $ECS_LEVEL == true ]]; then
+            composer cs --level=$ECS_LEVEL
+          fi
+          composer phpstan
+          composer rector
+        fi
+    - composer statie
+
+deploy:
+    provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    local_dir: output
+    on:
+        branch: master

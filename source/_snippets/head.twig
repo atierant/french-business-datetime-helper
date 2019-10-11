@@ -1,0 +1,27 @@
+<head>
+    <title>{{ title }}</title>
+    <meta charset="utf-8">
+    <meta name="robots" content="index, follow">
+
+    <link rel="icon" type="image/icon" href="./assets/img/favicon.ico" />
+
+    {# based on Google lighthouse feedback #}
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+
+    {# mobile #}
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600">
+
+    {# Font Awesome - locally for css classes autocomplete #}
+    <link href="./assets/font-awesome/css/font-awesome.min.css?v={{ random() }}" rel="stylesheet" type="text/css" />
+
+    {# Twitter Bootstrap - locally for css classes autocomplete #}
+    <link href="./assets/bootstrap/bootstrap.min.css?v={{ random() }}" rel="stylesheet" type="text/css" />
+
+    {# this is the last, so prism can be overriden here #}
+    <link href="./assets/style.css?v={{ random() }}" rel="stylesheet" type="text/css" />
+</head>

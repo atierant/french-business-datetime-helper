@@ -1,0 +1,66 @@
+{
+  "name": "atierant/french-business-datetime-helper",
+  "license": "MIT",
+  "type": "project",
+  "description": "A simple helper about french business dates",
+  "minimum-stability": "stable",
+  "authors": [
+    {
+      "name": "Arnaud Tiérant",
+      "email": "arnaud@tierant.fr"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0",
+    "ext-calendar": "*"
+  },
+  "require-dev": {
+    "ext-simplexml": "*",
+    "friendsofphp/php-cs-fixer": "^2.15",
+    "pdepend/pdepend": "@stable",
+    "phpmd/phpmd": "@stable",
+    "phpunit/phpunit": "^7.0",
+    "rector/rector": "^0.5",
+    "squizlabs/php_codesniffer": "^3.3",
+    "symplify/easy-coding-standard": "^6.1",
+    "symplify/statie": "v6.1.0"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/",
+      "Lib\\": "lib/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "App\\Tests\\": "tests/"
+    }
+  },
+
+  "scripts": {
+    "ci": [
+      "@composer validate --no-check-all --strict"
+    ],
+    "unit_tests": [
+      "@composer install -qn --prefer-dist",
+      "vendor/bin/phpunit"
+    ],
+    "cs": "vendor/bin/ecs check lib src tests",
+    "csfix": "vendor/bin/ecs check lib src tests --fix --level max",
+    "phpstan": "vendor/bin/phpstan analyze src lib tests --level max",
+    "rector": "vendor/bin/rector process src lib tests --set php",
+    "statie": "vendor/bin/statie generate source"
+  },
+  "scripts-descriptions": {
+    "ci": "Launch CI validation & process.",
+    "unit_tests": "Launches the preconfigured PHPUnit unit tests.",
+    "cs": "Use PHP CS Fixer and PHP_CodeSniffer to check that the application code conforms to coding standards.",
+    "csfix": "Use PHP CS Fixer to fix application code conforming to coding standards.",
+    "phpstan": "PHP Static Analysis Tool.",
+    "rector": "Instant Upgrades and Instant Refactoring of php code.",
+    "statie": "Modern and Simple Static Site Generator written in PHP"
+  }
+}

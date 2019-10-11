@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    {% include "_snippets/head.twig" %}
+
+    <body>
+        <div id="head" class="text-center pt-4 pb-4">
+            <h1>
+                <a href="/">
+                    Made with ❤️ with <strong>PHP</strong>&nbsp;🐘
+                </a>
+            </h1>
+        </div>
+
+        {% block content %}{% endblock %}
+
+        {% include "_snippets/footer.twig" %}
+    </body>
+</html>

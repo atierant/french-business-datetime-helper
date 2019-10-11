@@ -1,0 +1,139 @@
+body {
+    font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif;
+    color: #222;
+    font-size: 19px;
+    line-height: 1.5em;
+}
+
+#head {
+    background: hsl(229, 30%, 44%);
+    color: #DDD;
+}
+
+#head h1 {
+    font-size: 3.4rem;
+}
+
+#head h1 a {
+    color: #EEE;
+}
+
+#head h1 a:hover {
+    color: #FFF;
+    text-decoration: none;
+}
+
+#subhead {
+    font-size: 1.5rem;
+}
+
+footer {
+    background: hsl(229, 30%, 44%);
+    color: #EEE;
+}
+
+footer .dim {
+    line-height: 2.5em;
+}
+
+footer h3 {
+    padding-bottom: .5em;
+}
+
+footer a {
+    color: white;
+    text-decoration: underline;
+}
+
+footer a.btn {
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: #DDD;
+    text-decoration: none;
+}
+
+/* menu */
+.navbar {
+    text-align: center;
+    background: hsl(229, 30%, 44%);
+    padding: 0;
+    margin: auto;
+}
+
+.navbar li a, .navbar li a:active, .navbar li a:focus {
+    background: white;
+}
+
+nav ul {
+    list-style: none;
+    display: block;
+    float: left;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+nav ul li {
+    float: left;
+    display: block;
+    position: relative;
+}
+
+nav ul li a {
+    padding: .5em .7em;
+    display: block;
+    color: #FFF;
+}
+
+#content a:hover {
+    text-decoration: none;
+}
+
+/* fluid container with break on top dimension */
+@media (min-width: 1200px) {
+    .container-fluid {
+        max-width: 1140px;
+    }
+}
+
+/* show/hidden menu; ref https://stackoverflow.com/a/35362821/1348344 */
+@media (max-width: 768px) {
+    .hidden-sm-down {
+        display: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .hidden-md-up {
+        display: none !important;
+    }
+}
+
+/* mobile version */
+@media (max-width: 768px) {
+    #head h1 {
+        font-size: 1.7em;
+    }
+
+    #subhead {
+        font-size: 1.1em;
+    }
+}
+
+/* mobile narrow */
+@media (max-width: 460px) {
+    #head h1 {
+        font-size: 1.5em;
+    }
+}
+
+footer .dim {
+    font-size: .9em;
+    color: #DDD;
+}
+
+/* reset left indent */
+footer ul {
+    padding-left: 1.2em;
+}
