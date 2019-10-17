@@ -7,6 +7,7 @@ use DateInterval;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DateTimeZone;
 use Exception;
 use InvalidArgumentException;
 
@@ -21,12 +22,12 @@ class BusinessDateTimeHelper
     /**
      * Retourne touts les jours fériés d'une année donnée pour la France
      *
-     * @param int|null $year
-     * @param string   $format
+     * @param int|null    $year
+     * @param string|null $format
      *
      * @return DateTime[]|int[]|string[]
      */
-    public function getFrenchHolidays(?int $year, $format = DateTimeInterface::class)
+    public function getFrenchHolidays(?int $year = null, ?string $format = DateTimeInterface::class)
     {
         if ($year === null) {
             $year = intval(date('Y'));
@@ -67,12 +68,12 @@ class BusinessDateTimeHelper
                     case 'readable':
                         // Note : J'aurais préféré utiliser la constante depuis DateTimeInterface,
                         // mais elle n'y a été introduite qu'en php 7.2
-                        $date = DateTime::createFromFormat('U', $holiday);
+                        $date = DateTime::createFromFormat('U', (string) $holiday, new DateTimeZone('UTC'));
 
                         return $date instanceof DateTimeInterface ? $date->format(DateTime::COOKIE) : $date;
                     case DateTimeInterface::class:
                     default:
-                        return DateTime::createFromFormat('U', (string) $holiday);
+                        return DateTime::createFromFormat('U', (string) $holiday, new DateTimeZone('UTC'));
                 }
             },
             $holidays
@@ -90,15 +91,15 @@ class BusinessDateTimeHelper
      */
     public function isHoliday(DateTime $date)
     {
+        // Le 9 à minuit en France
         // Récupération du timestamp pour une date donnée à minuit
         /** @var DateTime $date */
         $date = (clone $date);
-        $date->modify('midnight');
-        $date = $date->getTimestamp();
+        $timestamp = $date->getTimestamp();
 
         // Si le jour est un Dimanche (0) ou un samedi (6), ou un jour férié
-        return in_array($date, $this->getFrenchHolidays((int) date("Y", $date), 'timestamp'))
-            || in_array(date('w', $date), [self::SATURDAY, self::SUNDAY]);
+        return in_array($timestamp, $this->getFrenchHolidays((int) date("Y", $timestamp), 'timestamp'))
+            || in_array(date('w', $timestamp), [self::SATURDAY, self::SUNDAY]);
     }
 
     /**
@@ -135,16 +136,17 @@ class BusinessDateTimeHelper
             );
         }
 
-//        dump(sprintf('On part de cette date : %s', $date->format(DateTime::RFC7231)));
+//        dump(sprintf('On part de cette date qu'on convertit en UTC : %s', $date->format(DateTime::RFC7231)));
         $date = (clone $date)->modify('midnight');
-//        dump(sprintf('On considère ce jour à minuit : %s', $date->format(DateTime::RFC7231)));
+//        dump(sprintf('On considère ce jour à minuit : %s', $date->format(DateTime::ATOM)));
+
 
         /**
          * @var DateTime|DateTimeImmutable $date
          * Attention Pour la calcul des X jours ouvrés, la date courante est exclue.
          * On commence par le jour ouvré suivant à minuit
          */
-        $nextDay = $nextDay = $this->getNextBusinessDay($date);
+        $nextDay = $this->getNextBusinessDay($date);
 
         // Traitement du cas où l'opérateur n'aurait pas le droit de modifier
         if (0 === $workingDaysLimit) {
@@ -169,7 +171,7 @@ class BusinessDateTimeHelper
 //        dump(sprintf('Le lendemain minuit du nextDay vaut alors : %s', $nextDay->format(DateTime::RFC7231)));
 
         // Sortir au lendemain du dernier jour à minuit, que ça soit Samedi, Dimanche ou férié
-        return $nextDay;
+        return $nextDay->setTimezone(new DateTimeZone('UTC'));
     }
 
     /**
@@ -187,7 +189,7 @@ class BusinessDateTimeHelper
         $deadline = $this->getDeadline($date, $workingDaysLimit);
 
         // On est dans les temps si la deadline est postérieure à la date du jour à minuit ('today')
-        $today = new DateTimeImmutable('today');
+        $today = new DateTimeImmutable('now');
 
         return $today > $deadline;
     }
@@ -218,13 +220,28 @@ class BusinessDateTimeHelper
         return $base->add(new DateInterval("P{$days}D"));
     }
 
-    public function frenchDateFormatter(): void
-    {
-        // @see https://openclassrooms.com/forum/sujet/avoir-la-date-en-francais-grace-a-un-datetime-29453
-//        date_default_timezone_set('Europe/Paris');
-//// --- La setlocale() fonctionnne pour strftime mais pas pour DateTime->format()
-//        setlocale(LC_TIME, 'fr_FR.utf8','fra');// OK
-//// strftime("jourEnLettres jour moisEnLettres annee") de la date courante
-//        echo "Date du jour : ", strftime("%A %d %B %Y");
+    /**
+     * Permet de transformer un datetime en chaine lisible humainement au format par défaut
+     * "jourEnLettres jour moisEnLettres annee".
+     * Pour installer la locale fr sur son système :
+     * apt-get install language-pack-fr language-pack-fr-base manpages
+     *
+     * @see https://openclassrooms.com/forum/sujet/avoir-la-date-en-francais-grace-a-un-datetime-29453
+     *
+     * @param DateTimeInterface $date
+     * @param string|null       $locale
+     * @param string|null       $format
+     *
+     * @return string
+     */
+    public function formatAsFrenchDate(
+        DateTimeInterface $date,
+        ?string $locale = 'fr_FR.UTF-8',
+        ?string $format = "%A %d %B %Y"
+    ): string {
+        // --- La setlocale() fonctionnne pour strftime mais pas pour DateTime->format()
+        $return = setlocale(LC_TIME, $locale);
+
+        return ucwords(strftime($format, $date->getTimestamp()));
     }
 }

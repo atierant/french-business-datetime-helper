@@ -5,6 +5,7 @@ namespace App\Tests\Helper;
 use App\Helper\BusinessDateTimeHelper;
 use DateInterval;
 use DateTime;
+use DateTimeZone;
 use Exception;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -23,8 +24,172 @@ class BusinessDateTimeHelperTest extends TestCase
     public function setUp(): void
     {
         $this->helper = new BusinessDateTimeHelper();
-        // Set the default timezone to use.
-        date_default_timezone_set('UTC');
+    }
+
+    /**
+     * @return array
+     */
+    public function lastDaysProvider()
+    {
+        $date = function ($string) {
+            return new DateTime($string, new DateTimeZone('UTC'));
+        };
+
+        // dates
+        $treatmentDates = [
+            '10 Mai 2018, ko' => ['2018-05-10 12:00:00', '2018-05-30', false],
+            '10 Mai 2018, ok' => ['2018-05-10 12:00:00', '2018-05-31', true],
+            '10 Juin 2018, ok' => ['2018-06-10 12:00:00', '2018-06-30', true],
+            '10 Juillet 2018, ok' => ['2018-07-08 12:00:00', '2018-07-31', true],
+            '10 Août 2018, ok' => ['2018-08-10 12:00:00', '2018-08-31', true],
+            '10 Septembre 2018, ok' => ['2018-09-11 12:00:00', '2018-09-30', true],
+            '10 Octobre 2018, ok' => ['2018-10-10 12:00:00', '2018-10-31', true],
+            '10 Novembre 2018, ok' => ['2018-11-10 12:00:00', '2018-11-30', true],
+            '10 Décembre 2018, ok' => ['2018-12-10 12:00:00', '2018-12-31', true],
+            '10 Janvier 2019, ok' => ['2019-01-10 12:00:00', '2019-01-31', true],
+            '10 Février 2019, ok' => ['2019-02-10 12:00:00', '2019-02-28', true],
+            'Dernier jour de Février 2019, ok' => ['last day of february 2019', '2019-02-28', true],
+            '8 Mars 2019, ok' => ['2019-03-08 12:00:00', '2019-03-31', true],
+            'Dernier jour de Mars 2019, ok' => ['last day of march 2019', '2019-03-31', true],
+            '10 Avril 2019, ok' => ['2019-04-10 12:00:00', '2019-04-30', true],
+            '10 Mai 2019, ok' => ['2019-05-10 12:00:00', '2019-05-31', true],
+            '10 Juin 2019, ok' => ['2019-06-10 12:00:00', '2019-06-30', true],
+            '10 Juillet 2019, ok' => ['2019-07-10 12:00:00', '2019-07-31', true],
+            '9 Septembre 2019, ko' => ['2019-09-09', '2019-09-29', false],
+            'Dernier jour de Septembre 2019, ok' => ['last day of september 2019', '2019-09-30', true],
+            'Dernier jour du mois en cours, ok' => ['now', 'last day of this month', true],
+        ];
+
+        /** @var DateTime[] $treatmentDates */
+        $arrayMap = [];
+        foreach ($treatmentDates as $key => $treatmentDateSet) {
+            $arrayMap[$key] = [
+                $date($treatmentDateSet[0]),
+                $date($treatmentDateSet[1])->modify('midnight'),
+                $treatmentDateSet[2],
+            ];
+        }
+        $treatmentDates = $arrayMap;
+
+        return $treatmentDates;
+    }
+
+    /**
+     * @dataProvider lastDaysProvider
+     *
+     * @param DateTime $day
+     * @param DateTime $expected
+     * @param boolean  $isLastDay
+     */
+    public function testLastDayOfMonth(DateTime $day, DateTime $expected, $isLastDay): void
+    {
+        $actual = $day->modify('last day of this month')->modify('midnight');
+
+        // Le double signe égal est nécessaire, pas un triple, on compare 2 objets différents
+        self::assertEquals(
+            $isLastDay,
+            $expected == $actual,
+            "{$actual->format(DateTime::ATOM)} n'est pas le dernier jour du mois."
+        );
+    }
+
+    /**
+     * Test de la date de Pâques
+     */
+    public function testGetEasterDateTime(): void
+    {
+        $easter2019 = $this->helper->getEasterDateTime(2019)->setTimezone(new DateTimeZone('UTC'));
+        self::assertEquals(
+            1555804800, // 21/04/2019 - 00:00:00 UTC
+            $easter2019->getTimestamp(),
+            "{$easter2019->format(DateTime::ATOM)} n'est pas Pâques."
+        );
+    }
+
+    /**
+     * Retourne un lot de paramètres pour le retour des fériés
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function frenchHolidaysParametersProvider()
+    {
+        return [
+            'Sans paramètre' => [null, null],
+            'Avec l\'année' => [2019, null],
+            'Au format human readable' => [2019, 'readable'],
+            'Au format Timestamp' => [2019, 'timestamp'],
+        ];
+    }
+
+    /**
+     * Test de la récupération des fériés français
+     *
+     * @dataProvider frenchHolidaysParametersProvider
+     *
+     * @param int|null    $year
+     * @param string|null $format
+     */
+    public function testGetFrenchHolidays(?int $year, ?string $format): void
+    {
+        self::assertNotEmpty(
+            $this->helper->getFrenchHolidays($year, $format),
+            "Problème sur la gestion des jours fériés"
+        );
+    }
+
+    /**
+     * Retourne un lot de paramètres pour le retour des fériés
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function formatedDateProvider()
+    {
+        $date = function ($string) {
+            return new DateTime($string, new DateTimeZone('UTC'));
+        };
+
+        return [
+            'Jour de l\'an 2019 en Français' => [
+                $date('first day of january 2019'),
+                'Mardi 01 Janvier 2019',
+                'fr_FR.UTF-8',
+            ],
+            'Jour de l\'an 2019 en anglais' => [
+                $date('first day of january 2019'),
+                'Tuesday 01 January 2019',
+                'en_US.UTF-8',
+            ],
+            'Jour de l\'an 2019 par défaut' => [
+                $date('first day of january 2019'),
+                'Tuesday 01 January 2019',
+                'C',
+            ],
+        ];
+    }
+
+    /**
+     * Test de la récupération des fériés français
+     *
+     * @dataProvider formatedDateProvider
+     *
+     * @param DateTime    $date
+     * @param string      $expected
+     * @param string|null $locale
+     */
+    public function testFormatAsFrenchDate(DateTime $date, string $expected, ?string $locale = null): void
+    {
+        if (setlocale(LC_TIME, 0) !== $locale) {
+            self::assertTrue(true);
+            return;
+        }
+        $result = $this->helper->formatAsFrenchDate($date, $locale);
+        self::assertEquals(
+            $expected,
+            $result,
+            "$result ne correspond pas à la chaine attendue $expected"
+        );
     }
 
     /**
@@ -36,7 +201,7 @@ class BusinessDateTimeHelperTest extends TestCase
     public function holidaysProvider()
     {
         $date = function ($string) {
-            return new DateTime($string);
+            return new DateTime($string, new DateTimeZone('UTC'));
         };
 
         // Inutile de tester tous les samedis et dimanche de l'histoire
@@ -92,16 +257,20 @@ class BusinessDateTimeHelperTest extends TestCase
      */
     public function nextBusinessDayProvider()
     {
+        $date = function ($string) {
+            return (new DateTime($string, new DateTimeZone('UTC')))->format(DateTime::ATOM);
+        };
+
         return [
-            'Premier Vendredi 2019, à 00:00 en UTC' => ['2019-01-05T00:00:00+00:00', '2019-01-07T00:00:00+00:00'],
-            'Premier Samedi 2019' => ['2019-01-05T00:00:00+00:00', '2019-01-07T00:00:00+00:00'],
-            'Premier Dimanche 2019' => ['2019-01-06T00:00:00+00:00', '2019-01-07T00:00:00+00:00'],
-            'Premier Lundi 2019' => ['2019-01-07T00:00:00+00:00', '2019-01-08T00:00:00+00:00'],
-            'Second Mardi 2019' => ['2019-01-08T00:00:00+00:00', '2019-01-09T00:00:00+00:00'],
-            'Vendredi avant Pâques 2019' => ['2019-04-19T00:00:00+00:00', '2019-04-23T00:00:00+00:00'],
-            'Lundi de Pâques 2019' => ['2019-04-22T00:00:00+00:00', '2019-04-23T00:00:00+00:00'],
-            'Veille de Noël 2019' => ['2019-12-24T00:00:00+00:00', '2019-12-26T00:00:00+00:00'],
-            'Noël 2019' => ['2019-12-25T00:00:00+00:00', '2019-12-26T00:00:00+00:00'],
+            'Premier Vendredi 2019, à 00:00 en UTC' => [$date('2019-01-04'), $date('2019-01-07')],
+            'Premier Samedi 2019' => [$date('2019-01-05'), $date('2019-01-07')],
+            'Premier Dimanche 2019' => [$date('2019-01-06'), $date('2019-01-07')],
+            'Premier Lundi 2019' => [$date('2019-01-07'), $date('2019-01-08')],
+            'Second Mardi 2019' => [$date('2019-01-08'), $date('2019-01-09')],
+            'Vendredi avant Pâques 2019' => [$date('2019-04-19'), $date('2019-04-23')],
+            'Lundi de Pâques 2019' => [$date('2019-04-22'), $date('2019-04-23')],
+            'Veille de Noël 2019' => [$date('2019-12-24'), $date('2019-12-26')],
+            'Noël 2019' => [$date('2019-12-25'), $date('2019-12-26')],
         ];
     }
 
@@ -125,7 +294,7 @@ class BusinessDateTimeHelperTest extends TestCase
 
     /**
      * Fournit des correspondances métier entre un jour donné, une limite de jours ouvrés, et un attendu
-     * @return array [attendu, actuel, limite]
+     * @return array [description => [attendu, actuel, limite]]
      *
      * @throws Exception
      */
@@ -133,16 +302,20 @@ class BusinessDateTimeHelperTest extends TestCase
     {
         $dataset = [];
 
+        $date = function ($string) {
+            return (new DateTime($string));
+        };
+
         // Premier Lundi 2019 (07/01)
-        $day = new DateTime('2019-01-07T12:00:00+00:00');
+        $day = $date('2019-01-07T12:00:00');
         // Lundi 07/01. A 2 jours, on tombe au Jeudi 10/01 à minuit, à partir de là on bloque.
-        $dataset['Lundi 07/01. A 2 jours.'] = [new DateTime('2019-01-10T00:00:00+00:00'), $day, 2];
+        $dataset['Lundi 07/01. A 2 jours.'] = [$date('2019-01-10'), $day, 2];
         // Lundi 07/01. A 3 jours, on tombe au Vendredi 11/01 à minuit, à partir de là on bloque.
-        $dataset['Lundi 07/01. A 3 jours.'] = [new DateTime('2019-01-11T00:00:00+00:00'), $day, 3];
+        $dataset['Lundi 07/01. A 3 jours.'] = [$date('2019-01-11'), $day, 3];
         // Lundi 07/01. A 4 jours, on tombe au Samedi 12/01 à minuit, à partir de là on bloque.
-        $dataset['Lundi 07/01. A 4 jours.'] = [new DateTime('2019-01-12T00:00:00+00:00'), $day, 4];
+        $dataset['Lundi 07/01. A 4 jours.'] = [$date('2019-01-12'), $day, 4];
         // Lundi 07/01. A 5 jours, on tombe au Mardi 15/01 à minuit, à partir de là on bloque.
-        $dataset['Lundi 07/01. A 5 jours.'] = [new DateTime('2019-01-15T00:00:00+00:00'), $day, 5];
+        $dataset['Lundi 07/01. A 5 jours.'] = [$date('2019-01-15'), $day, 5];
 
         // Pâques 2019 (Dimanche 21 Avril 2019)
         $easter2019 = (new BusinessDateTimeHelper())->getEasterDateTime(2019);
@@ -152,25 +325,25 @@ class BusinessDateTimeHelperTest extends TestCase
         $interval->invert = 1;
         $day = $easter2019->add($interval);
         // Vendredi 19/04. A 5 jours, on tombe au Mardi 30/04 à minuit, à partir de là on bloque.
-        $dataset['Vendredi 19/04. A 5 jours'] = [new DateTime('2019-04-30T00:00:00+00:00'), $day, 5];
-        // Vendredi 19/04. A 6 jours, on tombe au Jeudi 02/05 à minuit, à partir de là on bloque.
-        $dataset['Vendredi 19/04. A 6 jours'] = [new DateTime('2019-05-01T00:00:00+00:00'), $day, 6];
+        $dataset['Vendredi 19/04. A 5 jours'] = [$date('2019-04-30'), $day, 5];
+//        // Vendredi 19/04. A 6 jours, on tombe au Jeudi 02/05 à minuit, à partir de là on bloque.
+        $dataset['Vendredi 19/04. A 6 jours'] = [$date('2019-05-01'), $day, 6];
 
         // Jeudi 06/06/2019
-        $day = new DateTime('2019-06-06T12:00:00+00:00');
+        $day = $date('2019-06-06T12:00:00');
         // Jeudi 06/06. A 2 jours, on tombe au Mercredi 12/06 à minuit, à partir de là on bloque.
-        $dataset['Jeudi 06/06. A 2 jours'] = [new DateTime('2019-06-12T00:00:00+00:00'), $day, 2];
+        $dataset['Jeudi 06/06. A 2 jours'] = [$date('2019-06-12'), $day, 2];
 
         // Mardi 24/12/2019
-        $day = new DateTime('2019-12-24T12:00:00+00:00');
+        $day = $date('2019-12-24T12:00:00');
         // Mardi 24/12. A 0 jours, on tombe au Jeudi 26/12 à minuit, à partir de là on bloque.
-        $dataset['Mardi 24/12. A 0 jours'] = [new DateTime('2019-12-26T00:00:00+00:00'), $day, 0];
+        $dataset['Mardi 24/12. A 0 jours'] = [$date('2019-12-26'), $day, 0];
         // Mardi 24/12. A 1 jours, on tombe au Vendredi 27/12 à minuit, à partir de là on bloque.
-        $dataset['Mardi 24/12. A 1 jours'] = [new DateTime('2019-12-27T00:00:00+00:00'), $day, 1];
+        $dataset['Mardi 24/12. A 1 jours'] = [$date('2019-12-27'), $day, 1];
         // Mardi 24/12. A 2 jours, on tombe au Lundi 30/12 à minuit, à partir de là on bloque.
-        $dataset['Mardi 24/12. A 2 jours'] = [new DateTime('2019-12-28T00:00:00+00:00'), $day, 2];
+        $dataset['Mardi 24/12. A 2 jours'] = [$date('2019-12-28'), $day, 2];
         // Mardi 24/12. A 11 jours, on tombe au Lundi 13/01/2020 à minuit, à partir de là on bloque.
-        $dataset['Mardi 24/12. A 11 jours'] = [new DateTime('2020-01-11T00:00:00+00:00'), $day, 11];
+        $dataset['Mardi 24/12. A 11 jours'] = [$date('2020-01-11'), $day, 11];
 
         return $dataset;
     }
@@ -187,6 +360,7 @@ class BusinessDateTimeHelperTest extends TestCase
     public function testGetDeadlineGMT(DateTime $expected, DateTime $day, int $limit): void
     {
         $result = $this->helper->getDeadline($day, $limit);
+
         self::assertEquals(
             $expected->format(DateTime::ATOM),
             $result->format(DateTime::ATOM),
