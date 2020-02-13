@@ -9,12 +9,11 @@ language: php
 
 # Versions of PHP I want my project run with.
 php:
-    - '7.1'
     - '7.2'
     - '7.3'
 
 env:
-    - ECS_LEVEL=php71
+    - ECS_LEVEL=php72
 
 matrix:
     include:
