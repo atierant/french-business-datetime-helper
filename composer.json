@@ -63,7 +63,7 @@
     "cs": "vendor/bin/ecs check src tests",
     "csfix": "vendor/bin/ecs check src tests --fix",
     "phpstan": "vendor/bin/phpstan analyze src tests",
-    "rector": "vendor/bin/rector process src tests --set php",
+    "rector": "vendor/bin/rector process src tests",
     "dump-static-site": "bin/console dump-static-site",
     "auto-scripts": {
       "cache:clear": "symfony-cmd",
