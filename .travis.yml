@@ -38,20 +38,20 @@ install:
 # Run script
 script:
     - composer ci
-    - composer unit_tests
+    - XDEBUG_MODE=coverage composer unit_tests
     - |
         if [[ $COVERAGE == true ]]; then
-          XDEBUG_MODE=coverage php lib/CoverageChecker.php clover.xml 60
+          php lib/CoverageChecker.php clover.xml 60
         fi
     - |
         if [[ $STATIC_ANALYSIS == true ]]; then
           if [[ $ECS_LEVEL == true ]]; then
-            composer cs --level=$ECS_LEVEL
+            composer cs
           fi
           composer phpstan
           composer rector
         fi
-    - composer dump-static-site
+    - php bin/console dump-static-site
 
 deploy:
     provider: pages

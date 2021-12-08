@@ -64,7 +64,6 @@
     "csfix": "vendor/bin/ecs check src tests --fix",
     "phpstan": "vendor/bin/phpstan analyze src tests",
     "rector": "vendor/bin/rector process src tests",
-    "dump-static-site": "bin/console dump-static-site",
     "auto-scripts": {
       "cache:clear": "symfony-cmd",
       "assets:install %PUBLIC_DIR%": "symfony-cmd"
@@ -76,7 +75,6 @@
     "cs": "Use PHP CS Fixer and PHP_CodeSniffer to check that the application code conforms to coding standards.",
     "csfix": "Use PHP CS Fixer to fix application code conforming to coding standards.",
     "phpstan": "PHP Static Analysis Tool.",
-    "rector": "Instant Upgrades and Instant Refactoring of php code.",
-    "dump-static-site": "Modern and Simple Static Site Generator written in PHP"
+    "rector": "Instant Upgrades and Instant Refactoring of php code."
   }
 }
