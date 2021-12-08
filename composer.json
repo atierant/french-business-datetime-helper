@@ -36,7 +36,7 @@
     "phpunit/phpunit": "^9.5",
     "rector/rector": "^0.12",
     "squizlabs/php_codesniffer": "^3.3",
-    "symplify/easy-coding-standard": "^9.4"
+    "symplify/easy-coding-standard": "^10.0.0"
   },
   "config": {
     "sort-packages": true
@@ -60,10 +60,10 @@
       "@composer install -qn --prefer-dist",
       "vendor/bin/phpunit"
     ],
-    "cs": "vendor/bin/ecs check lib src tests",
-    "csfix": "vendor/bin/ecs check lib src tests --fix --level max",
-    "phpstan": "vendor/bin/phpstan analyze src lib tests --level max",
-    "rector": "vendor/bin/rector process src lib tests --set php",
+    "cs": "vendor/bin/ecs check src tests",
+    "csfix": "vendor/bin/ecs check src tests --fix --level max",
+    "phpstan": "vendor/bin/phpstan analyze src tests --level max",
+    "rector": "vendor/bin/rector process src tests --set php",
     "dump-static-site": "bin/console dump-static-site",
     "auto-scripts": {
       "cache:clear": "symfony-cmd",
