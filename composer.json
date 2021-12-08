@@ -4,6 +4,7 @@
   "type": "project",
   "description": "A simple helper about french business dates",
   "minimum-stability": "stable",
+  "prefer-stable": true,
   "authors": [
     {
       "name": "Arnaud Tiérant",
@@ -11,27 +12,38 @@
     }
   ],
   "require": {
-    "php": ">=7.2.0",
-    "ext-calendar": "*"
+    "php": ">=8.0",
+    "ext-calendar": "*",
+    "doctrine/cache": "^2.1",
+    "erusev/parsedown-extra": "^0.8.1",
+    "symfony/asset": "^5.4",
+    "symfony/dotenv": "^5.4",
+    "symfony/flex": "^2.0",
+    "symfony/framework-bundle": "^5.4",
+    "symfony/http-foundation": "^5.4",
+    "symfony/runtime": "^5.4",
+    "symfony/stopwatch": "^5.4",
+    "symfony/twig-bridge": "^5.4",
+    "symfony/twig-bundle": "^5.4",
+    "symfony/yaml": "^5.4",
+    "symplify/symfony-static-dumper": "^10.0"
   },
   "require-dev": {
     "ext-simplexml": "*",
-    "friendsofphp/php-cs-fixer": "^2.15",
+    "friendsofphp/php-cs-fixer": "^3.3",
     "pdepend/pdepend": "@stable",
     "phpmd/phpmd": "@stable",
-    "phpunit/phpunit": "^7.0",
-    "rector/rector": "^0.5",
+    "phpunit/phpunit": "^9.5",
+    "rector/rector": "^0.12",
     "squizlabs/php_codesniffer": "^3.3",
-    "symplify/easy-coding-standard": "^6.1",
-    "symplify/statie": "v6.1.0"
+    "symplify/easy-coding-standard": "^9.4"
   },
   "config": {
     "sort-packages": true
   },
   "autoload": {
     "psr-4": {
-      "App\\": "src/",
-      "Lib\\": "lib/"
+      "App\\": "src/"
     }
   },
   "autoload-dev": {
@@ -52,7 +64,11 @@
     "csfix": "vendor/bin/ecs check lib src tests --fix --level max",
     "phpstan": "vendor/bin/phpstan analyze src lib tests --level max",
     "rector": "vendor/bin/rector process src lib tests --set php",
-    "statie": "vendor/bin/statie generate source"
+    "dump-static-site": "bin/console dump-static-site",
+    "auto-scripts": {
+      "cache:clear": "symfony-cmd",
+      "assets:install %PUBLIC_DIR%": "symfony-cmd"
+    }
   },
   "scripts-descriptions": {
     "ci": "Launch CI validation & process.",

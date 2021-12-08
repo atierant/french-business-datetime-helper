@@ -9,15 +9,15 @@ language: php
 
 # Versions of PHP I want my project run with.
 php:
-    - '7.2'
-    - '7.3'
+    - '8.0'
+    - '8.1'
 
 env:
-    - ECS_LEVEL=php72
+    - ECS_LEVEL=php80
 
 matrix:
     include:
-        -   php: 7.2
+        -   php: 8.0
             env: STATIC_ANALYSIS=true COVERAGE=true
 
         # Cache composer packages so "composer install" is faster
@@ -52,7 +52,7 @@ script:
           composer phpstan
           composer rector
         fi
-    - composer statie
+    - composer dump-static-site
 
 deploy:
     provider: pages

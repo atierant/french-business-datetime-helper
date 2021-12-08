@@ -11,6 +11,11 @@
         <ini name="error_reporting" value="-1" />
         <server name="KERNEL_CLASS" value="AppKernel" />
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
+
+        <!-- ###+ symfony/framework-bundle ### -->
+        <env name="APP_ENV" value="dev"/>
+        <env name="APP_SECRET" value="caf96b363b6037ea66535bdc5523d594"/>
+        <!-- ###- symfony/framework-bundle ### -->
     </php>
 
     <testsuites>
