@@ -416,12 +416,11 @@ class BusinessDateTimeHelperTest extends TestCase
 
     /**
      * Vérifie le jour limite pour une date donnée
-     * @expectedException InvalidArgumentException
      */
     public function testFailingGetDeadline(): void
     {
         // assert what should be happening
-        $this->expectException(BusinessDateTimeHelper::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->helper->getDeadline(new DateTime(), -1);
     }
 
