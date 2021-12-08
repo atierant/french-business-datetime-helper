@@ -77,6 +77,6 @@
     "csfix": "Use PHP CS Fixer to fix application code conforming to coding standards.",
     "phpstan": "PHP Static Analysis Tool.",
     "rector": "Instant Upgrades and Instant Refactoring of php code.",
-    "statie": "Modern and Simple Static Site Generator written in PHP"
+    "dump-static-site": "Modern and Simple Static Site Generator written in PHP"
   }
 }

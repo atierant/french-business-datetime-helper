@@ -420,6 +420,8 @@ class BusinessDateTimeHelperTest extends TestCase
      */
     public function testFailingGetDeadline(): void
     {
+        // assert what should be happening
+        $this->expectException(BusinessDateTimeHelper::class);
         $this->helper->getDeadline(new DateTime(), -1);
     }
 
