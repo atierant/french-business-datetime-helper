@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Command;
@@ -10,8 +11,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symplify\PackageBuilder\Console\Command\CommandNaming;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Symplify\PackageBuilder\Console\Command\CommandNaming;
 
 /**
  * Class WorkingDaysDeadlineController
@@ -60,7 +61,7 @@ class WorkingDaysDeadlineCommand extends Command
         $stopwatch = new Stopwatch();
         $stopwatch->start('fbdh-command');
 
-        $limit =(int) $input->getArgument('limit');
+        $limit = (int) $input->getArgument('limit');
         $date = new DateTime($input->getArgument('date'));
 
         $deadlineExceeded = (new BusinessDateTimeHelper())->deadlineExceeded($date, $limit);

@@ -41,7 +41,7 @@ script:
     - composer unit_tests
     - |
         if [[ $COVERAGE == true ]]; then
-          php lib/CoverageChecker.php clover.xml 60
+          XDEBUG_MODE=coverage php lib/CoverageChecker.php clover.xml 60
         fi
     - |
         if [[ $STATIC_ANALYSIS == true ]]; then

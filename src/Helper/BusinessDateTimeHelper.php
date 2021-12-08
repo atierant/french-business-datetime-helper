@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Helper;
@@ -17,7 +18,7 @@ use InvalidArgumentException;
 class BusinessDateTimeHelper
 {
     public const SATURDAY = 6;
-    public const SUNDAY   = 0;
+    public const SUNDAY = 0;
 
     /**
      * Retourne touts les jours fériés d'une année donnée pour la France
